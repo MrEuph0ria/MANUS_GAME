@@ -95,7 +95,7 @@ void desenhar_3d(BITMAP *tela)
 
     for (int x = 0; x < LARGURA; x++)
     {
-        // ¬ngulo do raio
+        // √Çngulo do raio
         float cameraX = (float)x / LARGURA;
 
         float raioAngulo =
@@ -106,7 +106,7 @@ void desenhar_3d(BITMAP *tela)
 
         float distancia = 0.0f;
 
-        // AvanÁa o raio pelo mapa
+        // Avan√ßa o raio pelo mapa
         while (distancia < 20.0f)
         {
             distancia += 0.02f;
@@ -140,7 +140,7 @@ void desenhar_3d(BITMAP *tela)
         if (baixo >= ALTURA)
             baixo = ALTURA - 1;
 
-        // CÈu
+        // C√©u
         line(
             tela,
             x,
@@ -160,7 +160,7 @@ void desenhar_3d(BITMAP *tela)
             makecol(255, 255, 255)
         );
 
-        // Ch„o
+        // Ch√£o
         line(
             tela,
             x,
@@ -198,18 +198,18 @@ void desenhar_inimigo(BITMAP *tela, BITMAP *sprite)
     float dx = inimigo.x - jogador.x;
     float dy = inimigo.y - jogador.y;
 
-    // Dist‚ncia atÈ o inimigo
+    // Dist√¢ncia at√© o inimigo
     float distancia = sqrt(dx * dx + dy * dy);
 	if (!inimigo_visivel()){
 		return;
 	}
-    // ¬ngulo atÈ o inimigo
+    // √Çngulo at√© o inimigo
     float anguloInimigo = atan2(dy, dx);
 
-    // DiferenÁa entre a direÁ„o do jogador e a direÁ„o do inimigo
+    // Diferen√ßa entre a dire√ß√£o do jogador e a dire√ß√£o do inimigo
     float diferenca = anguloInimigo - jogador.angulo;
 
-    // MantÈm o ‚ngulo entre -PI e PI
+    // Mant√©m o √¢ngulo entre -PI e PI
     while (diferenca > 3.14159f)
         diferenca -= 2.0f * 3.14159f;
 
@@ -218,16 +218,16 @@ void desenhar_inimigo(BITMAP *tela, BITMAP *sprite)
 
     const float FOV = 3.14159f / 3.0f;
 
-    // Se estiver fora da vis„o, n„o desenha
+    // Se estiver fora da vis√£o, n√£o desenha
     if (fabs(diferenca) > FOV / 2.0f)
         return;
 
-    // PosiÁ„o X na tela
+    // Posi√ß√£o X na tela
     float cameraX = (diferenca + FOV / 2.0f) / FOV;
 
     int telaX = (int)(cameraX * LARGURA);
 
-    // Tamanho do inimigo baseado na dist‚ncia
+    // Tamanho do inimigo baseado na dist√¢ncia
     int tamanho = (int)(ALTURA / distancia);
 
     if (tamanho < 5)
@@ -355,7 +355,7 @@ bool jogador_perto()
 
     float distancia = sqrt(dx * dx + dy * dy);
 
-    // Dist‚ncia na qual o inimigo percebe o jogador
+    // Dist√¢ncia na qual o inimigo percebe o jogador
     return distancia < 6.0f;
 }void decidir_comportamento()
 {
@@ -364,9 +364,6 @@ bool jogador_perto()
 
     float distancia = sqrt(dx * dx + dy * dy);
 
-    bool perto = jogador_perto();
-    bool vendoJogador = inimigo_visivel();
-
     // =====================================
     // ATAQUE
     // =====================================
@@ -374,38 +371,17 @@ bool jogador_perto()
     if (distancia < 2.0f)
     {
         inimigo.comportamento = ATACAR;
-        inimigo.tempoComportamento = 0.0f;
         return;
     }
 
     // =====================================
-    // PERSEGUIR
+    // SEMPRE PERSEGUIR
     // =====================================
 
-    if (perto)
-    {
-        // Guarda a ˙ltima posiÁ„o conhecida
-        inimigo.ultimaPosicaoX = jogador.x;
-        inimigo.ultimaPosicaoY = jogador.y;
+    inimigo.ultimaPosicaoX = jogador.x;
+    inimigo.ultimaPosicaoY = jogador.y;
 
-        inimigo.comportamento = PERSEGUIR;
-
-        return;
-    }
-
-    // =====================================
-    // FORA DO RAIO DE DETEC«√O
-    // =====================================
-	if (inimigo.comportamento == PERSEGUIR)
-{
-    inimigo.comportamento = PROCURAR;
-
-    // 300 frames procurando
-    inimigo.tempoComportamento = 300.0f;
-
-    return;
-}
-    inimigo.comportamento = PATRULHAR;
+    inimigo.comportamento = PERSEGUIR;
 }
 void atualizar_velocidade_inimigo()
 {
@@ -512,7 +488,7 @@ void mover_inimigo()
     }
 
     // =====================================
-    // SE EXISTE UM PR”XIMO PONTO
+    // SE EXISTE UM PR√ìXIMO PONTO
     // =====================================
 
     if (caminho.size() > 1)
@@ -564,7 +540,7 @@ void desenhar_aviso(BITMAP *tela)
             makecol(255, 0, 0)
         );
     }
-    else if (distancia < 4.0f)
+    else if (distancia < 8.0f)
     {
         textout_centre(
             tela,
@@ -696,7 +672,7 @@ int main()
 
 		
         // =========================
-        // MOVIMENTA«√O
+        // MOVIMENTA√á√ÉO
         // =========================
 
         float velocidade = 0.05f;
@@ -706,7 +682,7 @@ int main()
 
         float novoX = jogador.x;
         float novoY = jogador.y;
-
+	
         if (key[KEY_W])
         {
             novoX += frenteX * velocidade;
@@ -731,7 +707,7 @@ int main()
             novoY += frenteX * velocidade;
         }
 
-        // Colis„o
+        // Colis√£o
         if (!parede(novoX, jogador.y))
             jogador.x = novoX;
 
@@ -740,7 +716,7 @@ int main()
 
 
         // =========================
-        // ROTA«√O
+        // ROTA√á√ÉO
         // =========================
 
         if (key[KEY_LEFT])
@@ -762,7 +738,10 @@ int main()
         desenhar_3d(tela);
         desenhar_inimigo(tela, spriteInimigo);
         desenhar_aviso(tela);
-        desenhar_minimapa(tela);
+        if(key[KEY_M]){
+        	desenhar_minimapa(tela);
+
+		}
 
 
         // Mira
