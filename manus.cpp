@@ -1,3 +1,4 @@
+//desenvolvido por Jhonn Vyctor
 #include <allegro.h>
 #include <cmath>
 #include <cstdlib>
@@ -465,7 +466,8 @@ void mover_inimigo()
     	destinoY = inimigo.destinoPatrulhaY;
 	}
     else
-    {
+    {	destinoX = inimigo.destinoPatrulhaX;
+    	destinoY = inimigo.destinoPatrulhaY;
         // ESPREITAR
         // Por enquanto fica parado
         return;
@@ -517,7 +519,7 @@ bool inimigo_encostou(){
 	float dx= jogador.x - inimigo.x;
 	float dy= jogador.y - inimigo.y;
 	float distancia = sqrt(dx*dx + dy* dy);
-	if (distancia < 0.5f){
+	if (distancia < 0.9f){
 		return true;
 	}
 	return false;
@@ -706,7 +708,6 @@ int main()
             novoX -= frenteY * velocidade;
             novoY += frenteX * velocidade;
         }
-
         // Colisão
         if (!parede(novoX, jogador.y))
             jogador.x = novoX;
