@@ -8,6 +8,7 @@
 #include <iostream>
 #define LARGURA 640
 #define ALTURA 480
+SAMPLE * somFundo;
 
 #define MAPA_LARGURA 20
 #define MAPA_ALTURA 20
@@ -89,6 +90,62 @@ bool parede(float x, float y)
 
     return mapa[mapaY][mapaX] == '#';
 }
+void efeito_vhs(BITMAP *tela)
+{
+    // Linhas horizontais
+    for (int y = 0; y < ALTURA; y += 3)
+    {
+        line(
+            tela,
+            0,
+            y,
+            LARGURA,
+            y,
+            makecol(20, 20, 20)
+        );
+    }
+
+    // Ruído
+    for (int i = 0; i < 1200; i++)
+    {
+        int x = rand() % LARGURA;
+        int y = rand() % ALTURA;
+
+        int brilho = rand() % 80;
+
+        putpixel(
+            tela,
+            x,
+            y,
+            makecol(brilho, brilho, brilho)
+        );
+    }
+
+    // Faixa de interferência
+    if (rand() % 100 < 8)
+    {
+        int y = rand() % ALTURA;
+        int altura = 2 + rand() % 8;
+
+        rectfill(
+            tela,
+            0,
+            y,
+            LARGURA,
+            y + altura,
+            makecol(30, 30, 30)
+        );
+    }
+}
+void desenhar_vhs(BITMAP * tela){
+	textout_right(
+		tela,
+		font,
+		"VHS",
+		LARGURA -15,
+		ALTURA - 25,
+		makecol(255,255,255));
+};
 
 void desenhar_3d(BITMAP *tela)
 {
@@ -620,12 +677,17 @@ void desenhar_minimapa(BITMAP *tela)
         makecol(255, 0, 0)
     );
 }
+
 int main()
 {
     allegro_init();
     install_keyboard();
 	install_mouse();
     set_color_depth(32);
+    install_sound(
+		DIGI_AUTODETECT,
+		MIDI_AUTODETECT,
+		NULL);
 
     set_gfx_mode(
         GFX_AUTODETECT_WINDOWED,
@@ -637,6 +699,17 @@ int main()
 	set_window_title("free_me");
     BITMAP *tela = create_bitmap(LARGURA, ALTURA);
 	BITMAP *spriteInimigo = load_bitmap("MS_CHAOS_Allegro4.bmp", NULL);
+	somFundo = load_sample("amaze.wav");
+	if (somFundo == NULL){
+		allegro_message("ERRO NO AUDIO");
+		destroy_bitmap(tela);
+		return 1;}
+	play_sample(
+	somFundo,
+	180,
+	128,
+	1000,
+	TRUE);
 	if (spriteInimigo == NULL)
 {
     allegro_message("ERRO: sprite nao foi carregado!");
@@ -735,12 +808,17 @@ int main()
             tela,
             makecol(0, 0, 0)
         );
-
+		int tempo = 10;
         desenhar_3d(tela);
         desenhar_inimigo(tela, spriteInimigo);
         desenhar_aviso(tela);
-        if(key[KEY_M]){
+    	desenhar_vhs(tela);
+		efeito_vhs(tela);
+    	
+
+        if(key[KEY_M] && tempo >=1){
         	desenhar_minimapa(tela);
+        	tempo -=1;
 
 		}
 
@@ -779,8 +857,11 @@ int main()
 
         rest(10);
     }
+	stop_sample(somFundo);
+	destroy_sample(somFundo);
 	destroy_bitmap(spriteInimigo);
     destroy_bitmap(tela);
+
 
     return 0;
 }
