@@ -1,9 +1,10 @@
-//desenvolvido por Jhonn Vyctor
+//desenvolvido por Jhonn Vyctor Lima Alves
 #include <allegro.h>
 #include <cmath>
 #include <cstdlib>
 #include <queue>
 #include <vector>
+#include <ctime>
 #include <algorithm>
 #include <iostream>
 #define LARGURA 640
@@ -46,9 +47,11 @@ struct Jogador
     float x;
     float y;
     float angulo;
+    float persona_x;
+    float persona_y;
 };
 
-Jogador jogador = { 5.0f, 5.0f, 0.0f };
+Jogador jogador = { 5.0f, 5.0f, 0.0f, 5.0f, 5.0f };
 struct Inimigo
 {
 	float x;
@@ -137,6 +140,15 @@ void efeito_vhs(BITMAP *tela)
         );
     }
 }
+void desenhar_comandos(BITMAP*tela){
+	textout_right(
+		tela,
+		font,
+		"M PARA ABRIR O MINIMAPA",
+		LARGURA -250,
+		ALTURA - 25,
+		makecol(255,255,255));
+}
 void desenhar_vhs(BITMAP * tela){
 	textout_right(
 		tela,
@@ -205,7 +217,7 @@ void desenhar_3d(BITMAP *tela)
             0,
             x,
             topo,
-            makecol(0, 0, 0)
+            makecol(0, 50, 0)
         );
 
         // Parede
@@ -453,7 +465,7 @@ void atualizar_velocidade_inimigo()
 	}
     else if (inimigo.comportamento == PERSEGUIR)
     {
-        inimigo.velocidade = 0.04f;
+        inimigo.velocidade = 0.02f;
     }
     else if (inimigo.comportamento == PROCURAR)
     {
@@ -590,6 +602,7 @@ void desenhar_aviso(BITMAP *tela)
 
     if (distancia < 2.0f)
     {
+    		
         textout_centre(
             tela,
             font,
@@ -609,6 +622,19 @@ void desenhar_aviso(BITMAP *tela)
             30,
             makecol(255, 255, 0)
         );
+    
+    }
+     else if (distancia >= 15.0f)
+    {
+        textout_centre(
+            tela,
+            font,
+            "SEGURO...",
+            LARGURA / 2,
+            30,
+            makecol(0, 255, 0)
+        );
+    
     }
 }
 void desenhar_minimapa(BITMAP *tela)
@@ -677,9 +703,56 @@ void desenhar_minimapa(BITMAP *tela)
         makecol(255, 0, 0)
     );
 }
-
-int main()
+void texto_maquina(const char* texto, int velocidade)
 {
+    for (int i = 0; texto[i] != '\0'; i++)
+    {
+        std::cout << texto[i] << std::flush;
+
+        clock_t inicio = clock();
+
+        while ((clock() - inicio) * 1000 / CLOCKS_PER_SEC < velocidade)
+        {
+            // espera
+        }
+    }
+
+    std::cout << std::endl;
+}
+int main()
+{	int opcao;
+	system("color 4");
+	texto_maquina("_______________ola, tem alguem ai?________________", 100);
+	texto_maquina("_______________me sinto tao sozinha...__________", 100);
+	texto_maquina("_______________voce nao me entende_______________", 100);
+
+	std::cout<<"pressione enter para continuar"<<std::endl;
+
+	std::cin.get();
+	std::cout <<std::endl;
+    std::cout << "==============================" << std::endl ;
+    std::cout << "          FREE_ME             " << std::endl ;
+    std::cout << "==============================V.1.5" << std::endl;
+    std::cout<<"DESENVOLVIDO POR JHONN VYCTOR LIMA ALVES,AKA MrEupH0RI4 AKA SucodeFruta" <<std::endl;
+    std::cout << std::endl;
+    std::cout << "1 - JOGAR" << std::endl;
+    std::cout << "2 - SAIR" <<std:: endl;
+    std::cout << std::endl;
+    std::cout << "Escolha: ";
+
+    std::cin >> opcao;
+
+    if (opcao == 2)
+    {
+        return 0;
+    }
+
+    if (opcao != 1)
+    {
+        std::cout << "Opcao invalida!" << std::endl;
+        return 0;
+    }
+
     allegro_init();
     install_keyboard();
 	install_mouse();
@@ -699,6 +772,7 @@ int main()
 	set_window_title("free_me");
     BITMAP *tela = create_bitmap(LARGURA, ALTURA);
 	BITMAP *spriteInimigo = load_bitmap("MS_CHAOS_Allegro4.bmp", NULL);
+	
 	somFundo = load_sample("amaze.wav");
 	if (somFundo == NULL){
 		allegro_message("ERRO NO AUDIO");
@@ -720,6 +794,7 @@ int main()
 	int centroX = LARGURA /2;
 	int centroY = ALTURA /2;
 	position_mouse(centroX, centroY);
+	int fafas = 0;
     while (rodando)
     	
     {	decidir_comportamento();
@@ -812,10 +887,15 @@ int main()
         desenhar_3d(tela);
         desenhar_inimigo(tela, spriteInimigo);
         desenhar_aviso(tela);
+        
     	desenhar_vhs(tela);
 		efeito_vhs(tela);
-    	
-
+		fafas ++;
+		if(fafas <=50){
+			desenhar_comandos(tela);
+		}
+		
+    
         if(key[KEY_M] && tempo >=1){
         	desenhar_minimapa(tela);
         	tempo -=1;
