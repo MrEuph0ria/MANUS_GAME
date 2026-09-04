@@ -13,6 +13,7 @@ SAMPLE * somFundo;
 
 #define MAPA_LARGURA 20
 #define MAPA_ALTURA 20
+//bem aqui, a gente define o layout do mapa,ele deve obdecer a escala das variaveis "MAPA_LARGURA" e "MAPA_ALTURA"
 
 const char mapa[MAPA_ALTURA][MAPA_LARGURA + 1] =
 {
@@ -37,6 +38,7 @@ const char mapa[MAPA_ALTURA][MAPA_LARGURA + 1] =
     "#                  #",
     "####################"
 };
+//estados que o perseguidor pode escolher
 #define PERSEGUIR 0
 #define ESPREITAR 1
 #define ATACAR 2
@@ -428,7 +430,7 @@ bool jogador_perto()
     // Distância na qual o inimigo percebe o jogador
     return distancia < 6.0f;
 }void decidir_comportamento()
-{
+{	//essa função foi um cu  de fazer, usei i.a, forum, uma porra de coisa pra no final virar essa gambiarra
     float dx = jogador.x - inimigo.x;
     float dy = jogador.y - inimigo.y;
 
@@ -541,7 +543,7 @@ void mover_inimigo()
         // Por enquanto fica parado
         return;
     }
-
+	//após uma lida , o algoritmo de achar caminhos foi um baita desafio
     // =====================================
     // PATHFINDER
     // =====================================
@@ -720,6 +722,8 @@ void texto_maquina(const char* texto, int velocidade)
     std::cout << std::endl;
 }
 int main()
+
+//aqui faremos o menu, optei por ser no terminal mesmo, daria mais charme
 {	int opcao;
 	system("color 4");
 	texto_maquina("_______________ola, tem alguem ai?________________", 100);
@@ -801,6 +805,8 @@ int main()
    		atualizar_velocidade_inimigo();
 		mover_inimigo();
     	if (inimigo_encostou())
+    	
+    	//consequencias quando a senhorita caos te pegar
 	{
 	    allegro_message("VOCE FOI PEGO!");
 	    system("start https://www.bing.com/images/search?q=creep%20eye&qs=HS&form=QBIRMH&sp=1&lq=0&pq=cree&sc=10-4&cvid=919004A770FC4517A229F92CAF5232D0&first=1");
