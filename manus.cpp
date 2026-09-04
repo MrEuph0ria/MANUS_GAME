@@ -13,6 +13,7 @@ SAMPLE * somFundo;
 
 #define MAPA_LARGURA 20
 #define MAPA_ALTURA 20
+//bem aqui, a gente define o layout do mapa,ele deve obdecer a escala das variaveis "MAPA_LARGURA" e "MAPA_ALTURA"
 
 const char mapa[MAPA_ALTURA][MAPA_LARGURA + 1] =
 {
@@ -37,6 +38,7 @@ const char mapa[MAPA_ALTURA][MAPA_LARGURA + 1] =
     "#                  #",
     "####################"
 };
+//estados que o perseguidor pode escolher
 #define PERSEGUIR 0
 #define ESPREITAR 1
 #define ATACAR 2
@@ -159,7 +161,7 @@ void desenhar_vhs(BITMAP * tela){
 		makecol(255,255,255));
 };
 
-void desenhar_3d(BITMAP *tela)
+void desenhar_3d(BITMAP *tela, BITMAP *texturaParede, BITMAP *texturaChao)
 {
     const float FOV = 3.14159f / 3.0f; // 60 graus
 
@@ -221,24 +223,79 @@ void desenhar_3d(BITMAP *tela)
         );
 
         // Parede
-        line(
-            tela,
-            x,
-            topo,
-            x,
-            baixo,
-            makecol(255, 255, 255)
-        );
+        float pontoX = jogador.x + raioX * distancia;
+float pontoY = jogador.y + raioY * distancia;
+
+// Descobre qual lado da parede foi atingido
+float fracX = pontoX - floor(pontoX);
+float fracY = pontoY - floor(pontoY);
+
+float distanciaX = std::min(fracX, 1.0f - fracX);
+float distanciaY = std::min(fracY, 1.0f - fracY);
+
+float coordenadaTextura;
+
+if (distanciaX < distanciaY)
+{
+    coordenadaTextura = pontoY - floor(pontoY);
+}
+else
+{
+    coordenadaTextura = pontoX - floor(pontoX);
+}
+
+int texX = (int)(coordenadaTextura * texturaParede->w);
+
+if (texX < 0)
+    texX = 0;
+
+if (texX >= texturaParede->w)
+    texX = texturaParede->w - 1;
+
+// Desenha uma coluna da textura esticada verticalmente
+stretch_blit(
+    texturaParede,
+    tela,
+    texX,
+    0,
+    1,
+    texturaParede->h,
+    x,
+    topo,
+    1,
+    baixo - topo + 1
+);
 
         // Chão
-        line(
-            tela,
-            x,
-            baixo,
-            x,
-            ALTURA,
-            makecol(255, 0, 255)
-        );
+       for (int y = baixo + 1; y < ALTURA; y++)
+{
+    int distanciaLinha = y - ALTURA / 2;
+
+    if (distanciaLinha <= 0)
+        continue;
+
+    float distanciaChao =
+        (float)ALTURA / (2.0f * distanciaLinha);
+
+    float chaoX = jogador.x + raioX * distanciaChao;
+    float chaoY = jogador.y + raioY * distanciaChao;
+
+    int texX = (int)floor(chaoX * texturaChao->w);
+    int texY = (int)floor(chaoY * texturaChao->h);
+
+    texX %= texturaChao->w;
+    texY %= texturaChao->h;
+
+    if (texX < 0)
+        texX += texturaChao->w;
+
+    if (texY < 0)
+        texY += texturaChao->h;
+
+    int cor = getpixel(texturaChao, texX, texY);
+
+    putpixel(tela, x, y, cor);
+}
     }
 }
 bool inimigo_visivel()
@@ -428,7 +485,7 @@ bool jogador_perto()
     // Distância na qual o inimigo percebe o jogador
     return distancia < 6.0f;
 }void decidir_comportamento()
-{
+{	//essa função foi um cu  de fazer, usei i.a, forum, uma porra de coisa pra no final virar essa gambiarra
     float dx = jogador.x - inimigo.x;
     float dy = jogador.y - inimigo.y;
 
@@ -541,7 +598,7 @@ void mover_inimigo()
         // Por enquanto fica parado
         return;
     }
-
+	//após uma lida , o algoritmo de achar caminhos foi um baita desafio
     // =====================================
     // PATHFINDER
     // =====================================
@@ -720,6 +777,8 @@ void texto_maquina(const char* texto, int velocidade)
     std::cout << std::endl;
 }
 int main()
+
+//aqui faremos o menu, optei por ser no terminal mesmo, daria mais charme
 {	int opcao;
 	system("color 4");
 	texto_maquina("_______________ola, tem alguem ai?________________", 100);
@@ -770,9 +829,31 @@ int main()
         0
     );
 	set_window_title("free_me");
-    BITMAP *tela = create_bitmap(LARGURA, ALTURA);
-	BITMAP *spriteInimigo = load_bitmap("MS_CHAOS_Allegro4.bmp", NULL);
-	
+	BITMAP *tela = create_bitmap(LARGURA, ALTURA);
+
+	BITMAP *spriteInimigo =
+    load_bitmap("MS_CHAOS_Allegro4.bmp", NULL);
+
+	BITMAP *texturaPedra =
+    load_bitmap("pedra_64x64.bmp", NULL);
+//TÁ ISSO FOI DE FUDER
+BITMAP *texturaChao =
+    load_bitmap("chao_pedra.bmp", NULL);
+
+if (texturaPedra == NULL)
+{
+    allegro_message("ERRO: textura da parede nao foi carregada!");
+    destroy_bitmap(tela);
+    return 1;
+}
+
+if (texturaChao == NULL)
+{
+    allegro_message("ERRO: textura do chao nao foi carregada!");
+    destroy_bitmap(texturaPedra);
+    destroy_bitmap(tela);
+    return 1;
+}
 	somFundo = load_sample("amaze.wav");
 	if (somFundo == NULL){
 		allegro_message("ERRO NO AUDIO");
@@ -801,6 +882,8 @@ int main()
    		atualizar_velocidade_inimigo();
 		mover_inimigo();
     	if (inimigo_encostou())
+    	
+    	//consequencias quando a senhorita caos te pegar
 	{
 	    allegro_message("VOCE FOI PEGO!");
 	    system("start https://www.bing.com/images/search?q=creep%20eye&qs=HS&form=QBIRMH&sp=1&lq=0&pq=cree&sc=10-4&cvid=919004A770FC4517A229F92CAF5232D0&first=1");
@@ -884,7 +967,7 @@ int main()
             makecol(0, 0, 0)
         );
 		int tempo = 10;
-        desenhar_3d(tela);
+        desenhar_3d(tela,texturaPedra,texturaChao);
         desenhar_inimigo(tela, spriteInimigo);
         desenhar_aviso(tela);
         
@@ -939,6 +1022,9 @@ int main()
     }
 	stop_sample(somFundo);
 	destroy_sample(somFundo);
+	destroy_bitmap(texturaPedra);
+
+	destroy_bitmap(texturaPedra);
 	destroy_bitmap(spriteInimigo);
     destroy_bitmap(tela);
 
