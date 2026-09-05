@@ -1,4 +1,4 @@
-//desenvolvido por Jhonn Vyctor Lima Alves
+//desenvolvido por Jhonn Vyctor Lima Alves aka MrEuh0ria aka SucodeFrut4
 #include <allegro.h>
 #include <cmath>
 #include <cstdlib>
